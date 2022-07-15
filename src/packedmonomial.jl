@@ -309,6 +309,11 @@ function MultivariatePolynomials.name_base_indices(v::Variable)
     "x", (v.id,)
 end
 MultivariatePolynomials.name(v::Variable) = string("x", int2lowerscript(v.id))
+function MultivariatePolynomials.monomialtype(::Type{Variable{L,E}}) where {L,E}
+    EN = new_E(Val(E))
+    K = calc_K(Val(L),Val(EN))
+    return PackedMonomial{L,E,K}
+end
 MultivariatePolynomials.variable_union_type(::Type{<:PackedMonomial{L,E}}) where {L,E} = Variable{L,E}
 
 MultivariatePolynomials.variables(::Type{<:PackedMonomial{L,E}}) where {L, E} = ntuple(i->Variable{L,E}(i-1), Val(L))
@@ -326,4 +331,9 @@ end
 
 function MultivariatePolynomials.substitute(::MultivariatePolynomials.Subs, v::V, p::Pair{V, Int64}) where {L,E,V<:Variable{L, E}}
     v == p[1] ? p[2] : v
+end
+
+function MA.promote_operation(::typeof(MultivariatePolynomials.substitute), ::Type{MultivariatePolynomials.Subs}, ::Type{PackedMonomial{L,E,K}}, ::Type{Pair{Variable{L,E},T}}) where {L,E,K,T}
+    U = MA.promote_operation(^, T, Int)
+    return MultivariatePolynomials.Term{U,PackedMonomial{L,E,K}}
 end
