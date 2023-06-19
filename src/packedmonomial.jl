@@ -314,8 +314,8 @@ MP.variable_union_type(::Type{<:PackedMonomial{L,E}}) where {L,E} = Variable{L,E
 MP.variables(::Type{<:PackedMonomial{L,E}}) where {L, E} = ntuple(i->Variable{L,E}(i-1), Val(L))
 MP.variables(::M) where {M<:PackedMonomial} = MP.variables(M)
 
-MP.term_type(M::Type{<:PackedMonomial}, ::Type{T}) where {T} = Term{T, M}
-MP.polynomial_type(::Type{Term{T, M}}) where {T, M<:PackedMonomial} = Polynomial{T, Term{T, M}, Vector{Term{T, M}}}
+MP.term_type(M::Type{<:Union{Monomial,PackedMonomial}}, ::Type{T}) where {T} = Term{T, M}
+MP.polynomial_type(::Type{Term{T, M}}) where {T, M<:Union{Monomial,PackedMonomial}} = Polynomial{T, Term{T, M}, Vector{Term{T, M}}}
 
 MP.nvariables(p::Polynomial{T, Term{T, M}}) where {T, L, M<:PackedMonomial{L}} = L
 MP.variables(p::Polynomial{T, Term{T, M}}) where {T, M<:PackedMonomial} = MP.variables(M)

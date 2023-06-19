@@ -20,6 +20,7 @@ function nvariables(x::Monomial)
     end
     return nvar
 end
+MP.constant_monomial(::Monomial) = Monomial(IDType[])
 
 firstid(m::Monomial) = m.ids[1]
 degree(m::Monomial, id) = count(isequal(id), m.ids)
@@ -72,6 +73,8 @@ function Base.show(io::IO, x::Monomial)
     end
     return nothing
 end
+
+MP._show(io::IO, ::MIME, m::Monomial) = show(io, m)
 
 function Base.:*(y::Monomial, x::Monomial)
     ids = y.ids
@@ -133,6 +136,29 @@ function Base.isless(x::Monomial, y::Monomial)
         vx != vy && return vx > vy
     end
     return false
+end
+function MP.compare(x::Monomial, y::Monomial)
+    if x < y
+        return -1
+    elseif x == y
+        return 0
+    else
+        return 1
+    end
+end
+MP.isconstant(x::Monomial) = isempty(x.ids)
+MP.variables(x::Monomial) = unique(x.ids)
+function MP.exponents(x::Monomial)
+    exps = Int[]
+    cur_id = nothing
+    for i in x.ids
+        if !isnothing(cur_id) && cur_id == i
+            exps[end] += 1
+        else
+            push!(exps, 1)
+        end
+    end
+    return exps
 end
 
 function Base.gcd(x::Monomial, y::Monomial)
